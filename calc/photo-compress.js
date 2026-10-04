@@ -704,7 +704,7 @@
       zoomWrap.appendChild(zoom);
       zoomWrap.appendChild(document.createTextNode(' 실제 크기(100%)로 확대해 보기'));
       el.compare.appendChild(zoomWrap);
-      el.compare.appendChild(makeEl('p', 'salim-sc-basis', '같은 배율로 곹쳐 보여 줍니다. 슬라이더를 움직여 경계선을 좌우로 엮길 보세요.'));
+      el.compare.appendChild(makeEl('p', 'salim-sc-basis', '같은 배율로 겹쳐 보여 줍니다. 슬라이더를 움직여 경계선을 좌우로 옮겨 보세요.'));
 
       function layout() {
         var w = zoom.checked ? item.result.width : stage.clientWidth;
@@ -756,7 +756,7 @@
       var idx = 0;
       (function step() {
         if (idx >= ready.length) {
-          setMsg(ready.length + '장을 모두 저장했습니다. 저장이 막히면 사진을 하나집 눌러 저장해 주세요.', 'ok');
+          setMsg(ready.length + '장을 모두 저장했습니다. 저장이 막히면 사진을 하나씩 눌러 저장해 주세요.', 'ok');
           return;
         }
         downloadItem(ready[idx++]);
@@ -908,7 +908,7 @@
 
     if (el.target) {
       el.target.oninput = function () {
-        var digits = el.target.value.replace(/[^\\d]/g, '');
+        var digits = el.target.value.replace(/[^\d]/g, '');
         el.target.value = digits ? formatInt(digits) : '';
       };
     }
