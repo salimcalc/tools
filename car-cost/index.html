@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>자동차 유지비 계산기 | 살림계산</title>
+<meta name="description" content="연간 주행거리, 연비, 유가, 배기량, 보험료를 입력해 자동차 연간·월 유지비와 1km당 비용을 계산합니다.">
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main class="wrap">
+  <h1 class="title">자동차 유지비 계산기</h1>
+  <p class="lead">입력값은 이 브라우저에서만 계산되며 저장·전송되지 않습니다. 처음 들어 있는 숫자는 <span class="ex">예시값</span>이니 내 차 기준으로 바꿔 주세요.</p>
+
+  <form id="form" novalidate>
+    <fieldset>
+      <legend>1. 연료비</legend>
+      <div class="row">
+        <label for="km">연간 주행거리</label>
+        <div class="field"><input id="km" type="number" inputmode="decimal" min="1" step="any" value="12000" aria-describedby="km-err km-hint"><span class="unit">km</span></div>
+        <p class="hint" id="km-hint">모르면 계기판 누적거리 ÷ 보유 연수로 추정하세요.</p>
+        <p class="err" id="km-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="fuelType">연료 종류</label>
+        <select id="fuelType">
+          <option value="gasoline">휘발유</option>
+          <option value="diesel">경유</option>
+          <option value="lpg">LPG</option>
+          <option value="ev">전기</option>
+        </select>
+      </div>
+      <div class="row">
+        <label for="eff"><span id="effLabel">연비</span> (실제 주행 기준)</label>
+        <div class="field"><input id="eff" type="number" inputmode="decimal" min="0.5" step="any" value="12" aria-describedby="eff-err"><span class="unit" id="effUnit">km/L</span></div>
+        <p class="err" id="eff-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="price">연료 단가</label>
+        <div class="field"><input id="price" type="number" inputmode="decimal" min="1" step="any" aria-describedby="price-err priceHint"><span class="unit" id="priceUnit">원/L</span></div>
+        <p class="hint" id="priceHint"></p>
+        <p class="err" id="price-err" role="alert"></p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>2. 자동차세 (비영업용 승용차)</legend>
+      <div class="row">
+        <label for="taxMode">계산 방식</label>
+        <select id="taxMode">
+          <option value="auto">배기량·연식으로 자동 계산</option>
+          <option value="manual">고지서 금액 직접 입력</option>
+        </select>
+      </div>
+      <div id="taxAuto">
+        <input type="hidden" id="taxYear">
+        <p class="hint">과세연도: <span id="taxYearText"></span>년</p>
+        <div id="ccRow">
+          <div class="row">
+            <label for="cc">배기량</label>
+            <div class="field"><input id="cc" type="number" inputmode="numeric" min="50" step="1" value="1598" aria-describedby="cc-err"><span class="unit">cc</span></div>
+            <p class="err" id="cc-err" role="alert"></p>
+          </div>
+          <div class="row">
+            <label for="regYear">최초 등록연도</label>
+            <div class="field"><input id="regYear" type="number" inputmode="numeric" min="1950" step="1" value="2022" aria-describedby="regYear-err"><span class="unit">년</span></div>
+            <p class="err" id="regYear-err" role="alert"></p>
+          </div>
+        </div>
+        <p class="hint" id="evNote" hidden>전기차는 연 10만원 + 지방교육세 30%로 계산합니다(차령 경감 미반영).</p>
+        <div class="row check">
+          <input id="prepay" type="checkbox">
+          <label for="prepay">1월에 연납(공제 약 4.6%)</label>
+        </div>
+      </div>
+      <div class="row" id="taxManualRow" hidden>
+        <label for="taxManual">연간 자동차세 합계(교육세 포함)</label>
+        <div class="field"><input id="taxManual" type="number" inputmode="numeric" min="0" step="1" aria-describedby="taxManual-err"><span class="unit">원</span></div>
+        <p class="err" id="taxManual-err" role="alert"></p>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>3. 보험·정비·기타</legend>
+      <div class="row">
+        <label for="insurance">연간 자동차보험료</label>
+        <div class="field"><input id="insurance" type="number" inputmode="numeric" min="0" step="1" value="750000" aria-describedby="insurance-err"><span class="unit">원</span></div>
+        <p class="err" id="insurance-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="maint">연간 정비·소모품(엔진오일·타이어 등)</label>
+        <div class="field"><input id="maint" type="number" inputmode="numeric" min="0" step="1" value="500000" aria-describedby="maint-err"><span class="unit">원</span></div>
+        <p class="err" id="maint-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="parking">월 주차비</label>
+        <div class="field"><input id="parking" type="number" inputmode="numeric" min="0" step="1" value="0" aria-describedby="parking-err"><span class="unit">원/월</span></div>
+        <p class="err" id="parking-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="toll">월 통행료</label>
+        <div class="field"><input id="toll" type="number" inputmode="numeric" min="0" step="1" value="20000" aria-describedby="toll-err"><span class="unit">원/월</span></div>
+        <p class="err" id="toll-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="etc">연간 기타(세차·검사·과태료 등)</label>
+        <div class="field"><input id="etc" type="number" inputmode="numeric" min="0" step="1" value="120000" aria-describedby="etc-err"><span class="unit">원</span></div>
+        <p class="err" id="etc-err" role="alert"></p>
+      </div>
+      <div class="row">
+        <label for="loan">월 할부금·리스료(없으면 0)</label>
+        <div class="field"><input id="loan" type="number" inputmode="numeric" min="0" step="1" value="0" aria-describedby="loan-err"><span class="unit">원/월</span></div>
+        <p class="err" id="loan-err" role="alert"></p>
+      </div>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="primary">유지비 계산하기</button>
+      <button type="reset">초기화</button>
+    </div>
+  </form>
+
+  <p id="status" class="sr-only" role="status" aria-live="polite"></p>
+  <section id="result" class="result" hidden tabindex="-1"></section>
+
+  <p class="foot">세율 기준: 지방세법 비영업용 승용차 자동차세(작성 기준일 2026-10-05). 결과는 추정치이며 실제 고지액·보험료와 다를 수 있습니다.</p>
+</main>
+<script src="calculator.js"></script>
+</body>
+</html>
